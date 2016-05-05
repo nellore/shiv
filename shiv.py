@@ -10,7 +10,7 @@ PROJ_COL=1 #20
 aspera = "%s/.aspera/connect/bin/ascp" % (os.environ['HOME'])
 akey = "-i %s/.aspera/connect/etc/asperaweb_id_dsa.openssh" % (os.environ['HOME'])
 aparams = '-k 1 -T -l5000m'
-prefix = 'anonftp@ftp.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/SRR'
+prefix = 'anonftp@ftp.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/'
 
 def run_command(cmd):
   try:
@@ -26,7 +26,7 @@ def download_accession(acc,dir_):
   #  shutil.rmtree(outdir) 
   if not os.path.isdir(outdir):
     os.mkdir(outdir)
-  acmd = "%s %s %s %s/%s/%s/%s.sra %s/" % (aspera,akey,aparams,prefix,acc[:6],acc,acc,outdir)
+  acmd = "%s %s %s %s/%s/%s/%s/%s.sra %s/" % (aspera,akey,aparams,prefix,acc[:3],acc[:6],acc,acc,outdir)
   run_command(acmd)
 
 
