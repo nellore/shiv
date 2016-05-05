@@ -9,7 +9,7 @@ PROJ_COL=1 #20
 
 aspera = "%s/.aspera/connect/bin/ascp" % (os.environ['HOME'])
 akey = "-i %s/.aspera/connect/etc/asperaweb_id_dsa.openssh" % (os.environ['HOME'])
-aparams = '-k 1 -T -l5000m'
+aparams = '-k 1 -T -l500m'
 prefix = 'anonftp@ftp.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/'
 
 def run_command(cmd):
