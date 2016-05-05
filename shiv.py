@@ -28,7 +28,7 @@ def download_accession(run,dir_):
   if not os.path.isdir(outdir):
     os.mkdir(outdir)
   acmd = "%s %s %s %s/%s/%s/%s/%s.sra %s/" % (aspera,akey,aparams,prefix,run[:3],run[:6],run,run,outdir)
-  #run_command(acmd)
+  run_command(acmd)
   return outdir
 
 def convert_accession(run,tmp_dir,proj_dir):
@@ -47,7 +47,7 @@ def process_accessions(accF,tdir_,dir_):
         toutdir = "%s/%s" % (tdir_,proj)
         if not os.path.isdir(toutdir):
           os.mkdir(toutdir)
-        #run_dir = download_accession(run,toutdir)
+        run_dir = download_accession(run,toutdir)
         outdir = "%s/%s" % (dir_,proj)
         if not os.path.isdir(outdir):
           os.mkdir(outdir)
