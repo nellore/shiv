@@ -6,7 +6,6 @@ import subprocess
 
 RUN_COL=0
 PROJ_COL=1 #20
-ACD_REMOTE='remote'
 
 #default locations/settings for aspera
 aspera = "%s/.aspera/connect/bin/ascp" % (os.environ['HOME'])
@@ -47,40 +46,40 @@ def convert_accession(run,tmp_dir,proj_dir):
   fcmd = "%s --split-files --gzip -O %s %s/%s/%s.sra" % (fastqdump,run_dir,tmp_dir,run,run)
   run_command(fcmd)
 
-def upload_accession(remote_prefix,run,proj,outdir,logdir):
+def upload_accession(remote_prefix,run,proj,outdir,logdir,acd_remote):
   #call rclone to copy outdir/run/ to remote:remote_prefix/proj/run
   remote_path = "%s/%s" % (remote_prefix,proj)
   if len(remote_prefix) == 0:
     remote_path = proj
-  rcmd = "%s --log-file %s --max-size %s --transfers 1 copy %s/%s %s:%s" % (rclone,"%s/%s.log" % (logdir,run),MAX_UPLOAD_FILE_SIZE,outdir,run,ACD_REMOTE,remote_path)
+  rcmd = "%s --log-file %s --max-size %s --transfers 1 copy %s %s:%s/" % (rclone,"%s/%s.log" % (logdir,run),MAX_UPLOAD_FILE_SIZE,outdir,acd_remote,remote_path)
   run_command(rcmd)
 
-def remote_mkdir(remote_prefix,dir_to_create,logdir):
+def remote_mkdir(remote_prefix,dir_to_create,logdir,acd_remote):
   remote_path = "%s/%s" % (remote_prefix,dir_to_create)
   if len(remote_prefix) == 0:
     remote_path = dir_to_create
-  rcmd = "%s --log-file %s mkdir %s:%s" % (rclone,"%s/%s.log" % (logdir,dir_to_create),ACD_REMOTE,remote_path)
+  rcmd = "%s --log-file %s mkdir %s:%s" % (rclone,"%s/%s.log" % (logdir,dir_to_create),acd_remote,remote_path)
   run_command(rcmd)
 
-def process_accessions(accF,tdir_,dir_,ldir_,rprefix,just_upload):
-    with open(accF,"r") as fin:
+def process_accessions(args):
+    with open(args.accessions,"r") as fin:
       for line in fin:
         fields = line.rstrip().split(",")
         run = fields[RUN_COL]
         proj = fields[PROJ_COL]
-        toutdir = "%s/%s" % (tdir_,proj)
+        toutdir = "%s/%s" % (args.temp_dir,proj)
         if not os.path.isdir(toutdir):
           os.mkdir(toutdir)
-        run_dir = download_accession(run,toutdir,just_upload)
-        outdir = "%s/%s" % (dir_,proj)
+        run_dir = download_accession(run,toutdir,args.just_upload)
+        outdir = "%s/%s" % (args.out_dir,proj)
         if not os.path.isdir(outdir):
           os.mkdir(outdir)
-        if not just_upload:
+        if not args.just_upload:
           convert_accession(run,toutdir,outdir)
         if proj not in projs_seen:
-          remote_mkdir(rprefix,proj,ldir_)
+          remote_mkdir(args.remote_path_prefix,proj,args.log_dir,args.amazon_remote)
           projs_seen.add(proj)
-        upload_accession(rprefix,run,proj,outdir,ldir_)
+        upload_accession(args.remote_path_prefix,run,proj,outdir,args.log_dir,args.amazon_remote)
 
 def main():
     import argparse
@@ -120,11 +119,7 @@ def main():
     if not os.path.isdir(args.log_dir):
       os.mkdir(args.out_dir)
 
-    global ACD_REMOTE
-    ACD_REMOTE = args.amazon_remote
- 
-    process_accessions(args.accessions,args.temp_dir,args.out_dir,args.log_dir,args.remote_path_prefix,args.just_upload) 
-   
+    process_accessions(args)
 
 if __name__ == '__main__':
   main()
