@@ -5,7 +5,7 @@ import shutil
 import subprocess
 
 RUN_COL=0
-PROJ_COL=1 #20
+PROJ_COL=1
 
 #default locations/settings for aspera
 aspera = "%s/.aspera/connect/bin/ascp" % (os.environ['HOME'])
@@ -17,7 +17,7 @@ prefix = 'anonftp@ftp.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/'
 fastqdump = 'fastq-dump'
 
 #assume rclone is in path
-rclone = 'rclone'
+rclone = '/data/rclone-v1.29-linux-amd64/rclone'
 MAX_UPLOAD_FILE_SIZE = '49G'
 
 #track projects already created on remote end
@@ -76,10 +76,13 @@ def process_accessions(args):
           os.mkdir(outdir)
         if not args.just_upload:
           convert_accession(run,toutdir,outdir)
+        #toutdir = "%s/%s/%s" % (args.out_dir,proj,run)
         if proj not in projs_seen:
           remote_mkdir(args.remote_path_prefix,proj,args.log_dir,args.amazon_remote)
           projs_seen.add(proj)
         upload_accession(args.remote_path_prefix,run,proj,outdir,args.log_dir,args.amazon_remote)
+        os.system("rm -rf %s/%s*" % (outdir,run))  
+        os.system("rm -rf %s/%s*" % (toutdir,run))  
 
 def main():
     import argparse
